@@ -1,5 +1,6 @@
 import React from "react";
 import {HasUUID, IPotntApi, Pothole, PotntApi, Road} from "api/potntApi";
+import "style/main.scss"
 
 type MainViewProps = {
     api: IPotntApi
@@ -21,8 +22,8 @@ export default class MainView extends React.Component<MainViewProps, MainViewSta
     }
 
     render() {
-        return <div>
-            <TopBarView tenantName={""} />
+        return <div id="mainView">
+            <TopBarView tenantName={"Berlin"} />
             <DynamicPotholeList api={this.props.api} />
         </div>;
     }
@@ -35,9 +36,9 @@ type TopBarProps = {
 class TopBarView extends React.Component<TopBarProps> {
 
     render() {
-        return <div>
-            <p>Potn't</p>
-            <p>{this.props.tenantName} (<a>logout</a>)</p>
+        return <div id="topBar">
+            <p id="appName">Potn't</p>
+            <p id="user">{this.props.tenantName} (<a>logout</a>)</p>
         </div>
     }
 }
@@ -88,9 +89,9 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
     }
 
     render() {
-        return <div>
-            <DynamicList<Road> loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
-            <DynamicList<Pothole> loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
+        return <div id="potholeDynamicList" >
+            <DynamicList<Road> id="roadList" loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
+            <DynamicList<Pothole> id="potholeList" loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
             <PotholeViewer pothole={this.state.pothole} />
         </div>
     }
@@ -128,13 +129,19 @@ type DynamicListProps<T> = {
     updateSelection: (element: T) => void;
     loading: boolean;
     titleBuilder: (element: T) => string;
+    id: string;
 }
 
 class DynamicList<T extends HasUUID> extends React.Component<DynamicListProps<T>> {
     render() {
-        return <div>
-            { (this.props.elements != undefined) ? this.props.elements.map((element) =>
-                <div key={element.uuid} className={(this.props.selected === element) ? "selected" : "" } onClick={_ => this.props.updateSelection(element)}>
+        return <div className="dynamicList" id={this.props.id}>
+            { (this.props.elements != undefined) ? this.props.elements.map((element, i) =>
+                <div key={element.uuid}
+                     className={"listItem" +
+                        ((this.props.selected === element) ? " listItemSelected" : "") +
+                        ((i % 2 == 0) ? " listItemEven" : " listItemOdd")
+                     }
+                     onClick={_ => this.props.updateSelection(element)}>
                     {this.props.titleBuilder(element)}
                 </div>
             ) : (this.props.loading) ? "Loading...." : ""}
@@ -150,7 +157,7 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
 
     render() {
         return (this.props.pothole == undefined) ? "" :
-            <div>
+            <div id="potholeViewer">
                 <h2>{buildPotholeTitle(this.props.pothole)}</h2>
                 <table>
                     <tbody>

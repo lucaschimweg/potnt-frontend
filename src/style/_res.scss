@@ -1,0 +1,13 @@
+$potntPrimary: #00bd84;
+$potntPrimaryDark: #25664C;
+$potntGradStart: #00c08a;
+$potntGradEnd: #00ca9a;
+$topBarSize: 3em;
+
+$potntGrad: linear-gradient(to right, $potntGradStart, $potntGradEnd);
+
+@import url('https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800&display=swap');
+
+* {
+  font-family: 'Muli', sans-serif;
+}

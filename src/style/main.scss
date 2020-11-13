@@ -1,0 +1,97 @@
+@import "res";
+@import "grid";
+
+html {
+  overflow: hidden;
+  background: whitesmoke;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+#topBar {
+  position: relative;
+  height: $topBarSize;
+  background: $potntGrad;
+  width: 100%;
+  display: grid;
+  grid-template-columns: $topBarSize auto $topBarSize;
+  box-shadow: 0 0 5px 0 #000000;
+  z-index: 10;
+  color: white;
+}
+
+#appName {
+  @include gridColumn(1, 9);
+  @include gridCenterVert(4);
+  padding-left: 16px;
+  font-size: large;
+  font-weight: bold;
+}
+
+#user {
+  text-align: right;
+  padding-right: 16px;
+  @include gridColumn(9, 13);
+  @include gridCenterVert(4);
+  font-weight: bold;
+}
+
+#user a {
+  font-weight: normal;
+}
+
+#mainView {
+  height: 100%;
+  width: 100%;
+}
+
+#potholeDynamicList {
+  height: calc(100% - #{$topBarSize});
+  @include gridRootHor();
+  @include gridRootVert();
+}
+
+.dynamicList {
+  @include gridCenterVert(0);
+  border-right: 1px solid black;
+  z-index: 0;
+}
+
+#roadList{
+  @include gridColumn(1, 4);
+}
+
+#potholeList {
+  @include gridColumn(4, 7);
+}
+
+.listItem {
+  height: 3rem;
+  display: flex;
+  padding-left: 8px;
+  align-items: center;
+  padding-right: -8px;
+  cursor: pointer;
+}
+
+.listItemSelected {
+  background: $potntPrimaryDark !important;
+  color: white;
+}
+
+.listItemEven {
+  background: #eee;
+}
+
+.listItemEven {
+  background: #eaeaea;
+}
+
+#potholeViewer {
+  padding: 8px;
+  @include gridColumn(7, 13);
+  @include gridCenterVert(0);
+}
