@@ -22,8 +22,8 @@ export default class LoginView extends React.Component<LoginViewProps, LoginView
 
     render() {
         return <div>
-            Username: <input type="text" value={this.state.username} onChange={(e) => this.setState({username: e.target.value})}/>
-            Password: <input type="password" value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/>
+            Username: <input type="text" value={this.state.username} onChange={(e) => this.setState({username: e.target.value})}/> <br />
+            Password: <input type="password" value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/> <br />
             <button onClick={this.login}>Login</button>
         </div>;
     }

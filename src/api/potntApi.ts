@@ -1,5 +1,9 @@
 import RestfulApi from "./restfulApi";
 
+export interface HasUUID {
+    uuid: string;
+}
+
 export type Pothole = {
     uuid: string,
     length: number,
