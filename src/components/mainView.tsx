@@ -1,8 +1,8 @@
 import React from "react";
-import {HasUUID, Pothole, PotntApi, Road} from "../api/potntApi";
+import {HasUUID, IPotntApi, Pothole, PotntApi, Road} from "api/potntApi";
 
 type MainViewProps = {
-    api: PotntApi
+    api: IPotntApi
 }
 
 type MainViewState = {
@@ -51,12 +51,14 @@ function buildPotholeTitle(p: Pothole): string {
 }
 
 type DynamicPotholeListProps = {
-    api: PotntApi
+    api: IPotntApi
 }
 
 type DynamicPotholeListState = {
+    roadsLoading: boolean,
     roads: Road[] | undefined,
     road: Road | undefined,
+    potholesLoading: boolean,
     potholes: Pothole[] | undefined
     pothole: Pothole | undefined
 }
@@ -66,8 +68,10 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
     constructor(props: Readonly<DynamicPotholeListProps> | DynamicPotholeListProps) {
         super(props);
         this.state = {
+            roadsLoading: true,
             roads: undefined,
             road: undefined,
+            potholesLoading: false,
             potholes: undefined,
             pothole: undefined
         }
@@ -77,6 +81,7 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
             }
 
             this.setState({
+                roadsLoading: false,
                 roads: roads
             });
         });
@@ -84,8 +89,8 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
 
     render() {
         return <div>
-            <DynamicList<Road> elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
-            <DynamicList<Pothole> elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
+            <DynamicList<Road> loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
+            <DynamicList<Pothole> loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
             <PotholeViewer pothole={this.state.pothole} />
         </div>
     }
@@ -93,6 +98,7 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
     updateRoad(road: Road) {
         this.setState({
             road: road,
+            potholesLoading: true,
             potholes: undefined,
             pothole: undefined
         });
@@ -102,6 +108,7 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
             }
 
             this.setState({
+                potholesLoading: false,
                 potholes: potholes,
                 pothole: undefined
             });
@@ -119,6 +126,7 @@ type DynamicListProps<T> = {
     elements: T[] | undefined
     selected: T | undefined
     updateSelection: (element: T) => void;
+    loading: boolean;
     titleBuilder: (element: T) => string;
 }
 
@@ -126,10 +134,10 @@ class DynamicList<T extends HasUUID> extends React.Component<DynamicListProps<T>
     render() {
         return <div>
             { (this.props.elements != undefined) ? this.props.elements.map((element) =>
-                <div id={element.uuid} className={(this.props.selected === element) ? "selected" : "" }>
-                    this.props.titleBuilder(element)
+                <div key={element.uuid} className={(this.props.selected === element) ? "selected" : "" } onClick={_ => this.props.updateSelection(element)}>
+                    {this.props.titleBuilder(element)}
                 </div>
-            ) : "Loading...."}
+            ) : (this.props.loading) ? "Loading...." : ""}
         </div>;
     }
 }
@@ -145,26 +153,28 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
             <div>
                 <h2>{buildPotholeTitle(this.props.pothole)}</h2>
                 <table>
-                    <tr>
-                        <td>Latitude</td>
-                        <td>{this.props.pothole.coordinate.latitude}</td>
-                    </tr>
-                    <tr>
-                        <td>Longitude</td>
-                        <td>{this.props.pothole.coordinate.longitude}</td>
-                    </tr>
-                    <tr>
-                        <td>Length</td>
-                        <td>{this.props.pothole.length}</td>
-                    </tr>
-                    <tr>
-                        <td>Width</td>
-                        <td>{this.props.pothole.width}</td>
-                    </tr>
-                    <tr>
-                        <td>Depth</td>
-                        <td>{this.props.pothole.depth}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>Latitude</td>
+                            <td>{this.props.pothole.coordinate.latitude}</td>
+                        </tr>
+                        <tr>
+                            <td>Longitude</td>
+                            <td>{this.props.pothole.coordinate.longitude}</td>
+                        </tr>
+                        <tr>
+                            <td>Length</td>
+                            <td>{this.props.pothole.length}</td>
+                        </tr>
+                        <tr>
+                            <td>Width</td>
+                            <td>{this.props.pothole.width}</td>
+                        </tr>
+                        <tr>
+                            <td>Depth</td>
+                            <td>{this.props.pothole.depth}</td>
+                        </tr>
+                    </tbody>
                 </table>
 
                 <h3>Actions</h3>

@@ -45,7 +45,17 @@ export class PotntSignupApi extends RestfulApi {
     }
 }
 
-export class PotntApi extends RestfulApi {
+export interface IPotntApi {
+    login(username: string, password: string): Promise<boolean>;
+    getPothole(uuid: string): Promise<Pothole | undefined>;
+    getRoads(): Promise<Road[] | undefined>;
+    getPotholesOnRoad(uuid: string): Promise<Pothole[] | undefined>;
+    deletePothole(uuid: string): Promise<boolean>;
+    updatePothole(pothole: Pothole): Promise<Pothole | undefined>;
+    addPothole(pothole: Pothole): Promise<Pothole | undefined>;
+}
+
+export class PotntApi extends RestfulApi implements IPotntApi {
 
     constructor(tenant: string) {
         super(`/api/${tenant}`);
