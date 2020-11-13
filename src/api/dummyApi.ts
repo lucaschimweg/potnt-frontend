@@ -83,8 +83,11 @@ export class DummyPotntApi implements IPotntApi {
         return Promise.resolve(undefined);
     }
 
-    deletePothole(uuid: string): Promise<boolean> {
-        return Promise.resolve(false);
+    async deletePothole(uuid: string): Promise<boolean> {
+        for (let key in potholes) {
+            potholes[key] = potholes[key].filter(p => p.uuid != uuid)
+        }
+        return true
     }
 
     getPothole(uuid: string): Promise<Pothole | undefined> {

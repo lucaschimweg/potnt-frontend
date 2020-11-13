@@ -103,8 +103,23 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
         return <div id="potholeDynamicList" >
             <DynamicList<Road> allowAdd={true} onAdd={this.addRoad.bind(this)} id="roadList" loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
             <DynamicList<Pothole> allowAdd={false} id="potholeList" loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
-            <PotholeViewer pothole={this.state.pothole} />
+            <PotholeViewer pothole={this.state.pothole} onDelete={this.deleteCurrentPothole.bind(this)}/>
         </div>
+    }
+
+    deleteCurrentPothole() {
+        this.props.appControls.displayDialog(ConfirmDeleteDialog, {
+            onDelete: (dialog: ConfirmDeleteDialog) => {
+                if (this.state.pothole != undefined) {
+                    this.props.api.deletePothole(this.state.pothole.uuid).then(() => {
+                        this.updateRoad(this.state.road!)
+                        dialog.quit();
+                    });
+                } else {
+                    dialog.quit();
+                }
+            }
+        });
     }
 
     addRoad() {
@@ -203,7 +218,8 @@ class DynamicList<T extends HasUUID> extends React.Component<DynamicListProps<T>
 }
 
 type PotholeViewerProps = {
-    pothole: Pothole | undefined
+    pothole: Pothole | undefined,
+    onDelete: () => void;
 }
 
 class PotholeViewer extends React.Component<PotholeViewerProps> {
@@ -239,7 +255,7 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
 
                 <h3>Actions</h3>
                 <button>Edit</button>
-                <button>Delete</button>
+                <button onClick={this.props.onDelete}>Delete</button>
             </div>
     }
 }
@@ -265,7 +281,29 @@ class AddRoadDialog extends Dialog<AddRoadDialogProps, AddRoadDialogState> {
     renderContent(): JSX.Element {
         return <div>
             Name: <input type="text" value={this.state.name} onChange={e => this.setState({name: e.target.value})} />
-            <button onClick={e => this.props.onAdd(this.state.name, this)}>Create</button>
+            <button onClick={_ => this.props.onAdd(this.state.name, this)}>Create</button>
+        </div>
+    }
+}
+
+type ConfirmDeleteProps = {
+    onQuit?: () => void;
+    onDelete: (dialog: ConfirmDeleteDialog) => void;
+}
+
+type ConfirmDeleteState = {}
+
+class ConfirmDeleteDialog extends Dialog<ConfirmDeleteProps, ConfirmDeleteState> {
+
+    constructor(props: ConfirmDeleteProps, context: any) {
+        super(props, context);
+    }
+
+    renderContent(): JSX.Element {
+        return <div>
+            Do you really want to delete this pothole?
+            <button onClick={_ => this.props.onDelete(this)}>Yes</button>
+            <button onClick={_ => this.quit()}>Abort</button>
         </div>
     }
 }
