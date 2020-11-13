@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: potnt
+  name: potnt-frontend
+  labels:
+    app: potnt-frontend
+    tier: frontend
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: potnt-frontend
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: potnt-frontend
+        tier: frontend
+    spec:
+      containers:
+      - image: ghcr.io/lucaschimweg/potnt-frontend:{{ .Values.imageVersion }}
+        name: potnt-frontend
+        ports:
+        - containerPort: 80
+          name: http-port
