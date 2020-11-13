@@ -53,6 +53,7 @@ export interface IPotntApi {
     deletePothole(uuid: string): Promise<boolean>;
     updatePothole(pothole: Pothole): Promise<Pothole | undefined>;
     addPothole(pothole: Pothole): Promise<Pothole | undefined>;
+    addRoad(name: string): Promise<Road | undefined>;
 }
 
 export class PotntApi extends RestfulApi implements IPotntApi {
@@ -119,6 +120,17 @@ export class PotntApi extends RestfulApi implements IPotntApi {
     async addPothole(pothole: Pothole): Promise<Pothole | undefined> {
         delete pothole.uuid
         let res = await this.post(`/pothole`, pothole);
+        if (!(res.status == 200 && res.resultParsable)) {
+            return undefined
+        }
+
+        return res.result
+    }
+
+    async addRoad(name: string): Promise<Road | undefined> {
+        let res = await this.post(`/road`, {
+            name: name
+        });
         if (!(res.status == 200 && res.resultParsable)) {
             return undefined
         }

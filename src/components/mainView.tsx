@@ -1,30 +1,57 @@
-import React from "react";
+import React, {ReactHTML} from "react";
 import {HasUUID, IPotntApi, Pothole, PotntApi, Road} from "api/potntApi";
 import "style/main.scss"
+import {Dialog, DialogProps} from "./dialog";
 
 type MainViewProps = {
     api: IPotntApi
 }
 
 type MainViewState = {
+    activeDialog: React.ClassType<DialogProps, any, any> | undefined;
+    activeDialogProps: DialogProps | undefined
+}
 
+type AppControls = {
+    displayDialog: (dialog: React.ClassType<DialogProps, any, any>, props: any) => void;
 }
 
 export default class MainView extends React.Component<MainViewProps, MainViewState> {
 
-
     constructor(props: Readonly<MainViewProps> | MainViewProps) {
         super(props);
         this.state = {
-            username: "",
-            password: ""
+            activeDialog: undefined,
+            activeDialogProps: undefined
         }
+    }
+
+    displayDialog(dialog: React.ClassType<DialogProps, any, any>, props: DialogProps) {
+        props.onQuit = this.closeDialog.bind(this);
+        this.setState({
+            activeDialog: dialog,
+            activeDialogProps: props
+        })
+    }
+
+    appControls = {
+        displayDialog: this.displayDialog.bind(this)
+    }
+
+    closeDialog() {
+        this.setState({
+            activeDialog: undefined
+        })
     }
 
     render() {
         return <div id="mainView">
-            <TopBarView tenantName={"Berlin"} />
-            <DynamicPotholeList api={this.props.api} />
+            <div id="mainContent"
+                 className={this.state.activeDialog != undefined ? "contentUnfocused" : ""}>
+                <TopBarView tenantName={"Berlin"} />
+                <DynamicPotholeList appControls={this.appControls} api={this.props.api} />
+            </div>
+            {this.state.activeDialog != undefined ? React.createElement(this.state.activeDialog, this.state.activeDialogProps): ""}
         </div>;
     }
 }
@@ -53,6 +80,7 @@ function buildPotholeTitle(p: Pothole): string {
 
 type DynamicPotholeListProps = {
     api: IPotntApi
+    appControls: AppControls
 }
 
 type DynamicPotholeListState = {
@@ -68,6 +96,29 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
 
     constructor(props: Readonly<DynamicPotholeListProps> | DynamicPotholeListProps) {
         super(props);
+        this.reload()
+    }
+
+    render() {
+        return <div id="potholeDynamicList" >
+            <DynamicList<Road> allowAdd={true} onAdd={this.addRoad.bind(this)} id="roadList" loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
+            <DynamicList<Pothole> allowAdd={false} id="potholeList" loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
+            <PotholeViewer pothole={this.state.pothole} />
+        </div>
+    }
+
+    addRoad() {
+        this.props.appControls.displayDialog(AddRoadDialog, {
+            onAdd: (name: string, dialog: AddRoadDialog) => {
+                this.props.api.addRoad(name).then(() => {
+                    this.reload();
+                    dialog.quit();
+                })
+            }
+        })
+    }
+
+    reload() {
         this.state = {
             roadsLoading: true,
             roads: undefined,
@@ -86,14 +137,6 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
                 roads: roads
             });
         });
-    }
-
-    render() {
-        return <div id="potholeDynamicList" >
-            <DynamicList<Road> id="roadList" loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
-            <DynamicList<Pothole> id="potholeList" loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
-            <PotholeViewer pothole={this.state.pothole} />
-        </div>
     }
 
     updateRoad(road: Road) {
@@ -130,21 +173,31 @@ type DynamicListProps<T> = {
     loading: boolean;
     titleBuilder: (element: T) => string;
     id: string;
+    allowAdd: boolean
+    onAdd?: (() => void)
 }
 
 class DynamicList<T extends HasUUID> extends React.Component<DynamicListProps<T>> {
     render() {
         return <div className="dynamicList" id={this.props.id}>
-            { (this.props.elements != undefined) ? this.props.elements.map((element, i) =>
-                <div key={element.uuid}
-                     className={"listItem" +
-                        ((this.props.selected === element) ? " listItemSelected" : "") +
-                        ((i % 2 == 0) ? " listItemEven" : " listItemOdd")
-                     }
-                     onClick={_ => this.props.updateSelection(element)}>
-                    {this.props.titleBuilder(element)}
-                </div>
-            ) : (this.props.loading) ? "Loading...." : ""}
+            {
+                (this.props.elements != undefined) ? <div>
+                    { this.props.elements.map((element, i) =>
+                        <div key={element.uuid}
+                             className={"listItem" +
+                                ((this.props.selected === element) ? " listItemSelected" : "") +
+                                ((i % 2 == 0) ? " listItemEven" : " listItemOdd")
+                             }
+                             onClick={_ => this.props.updateSelection(element)}>
+                            {this.props.titleBuilder(element)}
+                        </div>
+                    )}
+                    {this.props.allowAdd ?
+                    <div key={"_addElement"} className="listItemAdd listItem" onClick={this.props.onAdd}>
+                        +
+                    </div> : ""
+                    }
+                </div> : (this.props.loading) ? "Loading...." : ""}
         </div>;
     }
 }
@@ -190,3 +243,31 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
             </div>
     }
 }
+
+type AddRoadDialogProps = {
+    onQuit?: () => void;
+    onAdd: (name: string, dialog: AddRoadDialog) => void;
+}
+
+type AddRoadDialogState = {
+    name: string
+}
+
+class AddRoadDialog extends Dialog<AddRoadDialogProps, AddRoadDialogState> {
+
+    constructor(props: AddRoadDialogProps, context: any) {
+        super(props, context);
+        this.state = {
+            name: ""
+        }
+    }
+
+    renderContent(): JSX.Element {
+        return <div>
+            Name: <input type="text" value={this.state.name} onChange={e => this.setState({name: e.target.value})} />
+            <button onClick={e => this.props.onAdd(this.state.name, this)}>Create</button>
+        </div>
+    }
+}
+
+

@@ -69,6 +69,16 @@ const potholes: { [road: string]: Pothole[] } = {
 
 
 export class DummyPotntApi implements IPotntApi {
+    async addRoad(name: string): Promise<Road | undefined> {
+        let road = {
+            uuid: name,
+            name: name
+        }
+        roads.push(road);
+        potholes[name] = []
+        return road;
+    }
+
     addPothole(pothole: Pothole): Promise<Pothole | undefined> {
         return Promise.resolve(undefined);
     }

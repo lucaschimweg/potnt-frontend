@@ -43,9 +43,15 @@ html {
   font-weight: normal;
 }
 
-#mainView {
+#mainView, #mainContent {
   height: 100%;
   width: 100%;
+}
+
+.contentUnfocused {
+  filter: blur(2px);
+  z-index: -1 !important;
+  pointer-events: none;
 }
 
 #potholeDynamicList {
@@ -90,8 +96,38 @@ html {
   background: #eaeaea;
 }
 
+.listItem:hover {
+  background: #dadada;
+}
+
 #potholeViewer {
   padding: 8px;
   @include gridColumn(7, 13);
   @include gridCenterVert(0);
+}
+
+.dialog {
+  z-index: 20;
+  position: fixed;
+  height: 50vh;
+  width: 50vw;
+  left: 25%;
+  top: 25%;
+  box-shadow: 0 0 10px 1px #000000;
+  background: #eaeaea;
+}
+
+.dialogHeader {
+  height: $topBarSize;
+  background: $potntGrad;
+  z-index: 10;
+  box-shadow: 0 0 5px 0 #000000;
+}
+
+.dialogQuit {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  cursor: pointer;
 }
