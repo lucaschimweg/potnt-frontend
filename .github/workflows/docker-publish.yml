@@ -27,7 +27,7 @@ jobs:
       - name: Push image
         run: |
           IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
-          VERSION=${git rev-parse --short HEAD}
+          VERSION=$(git rev-parse --short HEAD)
 
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
@@ -44,5 +44,5 @@ jobs:
       - name: Deploy
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade potnt-frontend ./helm/ --install --wait --atomic --set=imageVersion=${git rev-parse --short HEAD}
+          exec: helm upgrade potnt-frontend ./helm/ --install --wait --atomic --set=imageVersion=$(git rev-parse --short HEAD)
           kubeconfig: '${{ secrets.KUBECONFIG }}'
