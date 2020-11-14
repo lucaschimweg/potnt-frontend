@@ -25,7 +25,7 @@ export type Coordinates = {
 
 export class PotntSignupApi extends RestfulApi {
     constructor() {
-        super("/api");
+        super("https://potnt.kuly.cloud/api");
     }
 
     async signUp(username: string, password: string, name: string): Promise<PotntApi | undefined> {
@@ -54,12 +54,13 @@ export interface IPotntApi {
     updatePothole(pothole: Pothole): Promise<Pothole | undefined>;
     addPothole(pothole: Pothole): Promise<Pothole | undefined>;
     addRoad(name: string): Promise<Road | undefined>;
+    getImageUrl(uuid: string): string
 }
 
 export class PotntApi extends RestfulApi implements IPotntApi {
 
     constructor(tenant: string) {
-        super(`/api/${tenant}`);
+        super(`https://potnt.kuly.cloud/api/${tenant}`);
     }
 
     async login(username: string, password: string): Promise<boolean> {
@@ -152,5 +153,9 @@ export class PotntApi extends RestfulApi implements IPotntApi {
             data.append('file', file)
             xhr.send(data);
         });
+    }
+
+    getImageUrl(uuid: string): string {
+        return `${this.apiRoot}/pothole/${uuid}/image`;
     }
 }

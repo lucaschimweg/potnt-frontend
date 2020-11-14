@@ -110,4 +110,8 @@ export class DummyPotntApi implements IPotntApi {
         return Promise.resolve(undefined);
     }
 
+    getImageUrl(uuid: string): string {
+        return "https://example.com/image.png";
+    }
+
 }

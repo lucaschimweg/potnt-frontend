@@ -106,7 +106,7 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
         return <div id="potholeDynamicList" >
             <DynamicList<Road> allowAdd={true} onAdd={this.addRoad.bind(this)} id="roadList" loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
             <DynamicList<Pothole> allowAdd={false} id="potholeList" loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
-            <PotholeViewer pothole={this.state.pothole} onDelete={this.deleteCurrentPothole.bind(this)}/>
+            <PotholeViewer api={this.props.api} pothole={this.state.pothole} onDelete={this.deleteCurrentPothole.bind(this)}/>
         </div>
     }
 
@@ -222,7 +222,8 @@ class DynamicList<T extends HasUUID> extends React.Component<DynamicListProps<T>
 
 type PotholeViewerProps = {
     pothole: Pothole | undefined,
-    onDelete: () => void;
+    onDelete: () => void,
+    api: IPotntApi
 }
 
 class PotholeViewer extends React.Component<PotholeViewerProps> {
@@ -252,6 +253,10 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
                         <tr>
                             <td>Depth</td>
                             <td>{this.props.pothole.depth}</td>
+                        </tr>
+                        <tr>
+                            <td>Image</td>
+                            <td><img className="potholeImage" alt="provided image" src={this.props.api.getImageUrl(this.props.pothole.uuid)}/></td>
                         </tr>
                     </tbody>
                 </table>
