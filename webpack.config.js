@@ -6,6 +6,7 @@ module.exports = {
     entry: {
         index: './src/index.tsx',
         app: './src/app.tsx',
+        report: './src/report.tsx',
     },
     plugins: [
         new CleanWebpackPlugin({
@@ -20,6 +21,11 @@ module.exports = {
             template: 'src/templates/index.html',
             filename: 'index.html',
             chunks: ['index']
+        }),
+        new HtmlWebpackPlugin({
+            template: 'src/templates/index.html',
+            filename: 'report/index.html',
+            chunks: ['report']
         }),
     ],
     output: {
