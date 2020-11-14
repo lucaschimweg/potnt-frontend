@@ -9,7 +9,7 @@ type SignupViewProps = {
 type SignupViewState = {
     error: string,
     pothole: Pothole,
-    image: string,
+    image: File | undefined,
 }
 
 export default class ReportView extends React.Component<SignupViewProps, SignupViewState> {
@@ -33,7 +33,7 @@ export default class ReportView extends React.Component<SignupViewProps, SignupV
                     longitude: -1
                 }
             },
-            image: ""
+            image: undefined
         }
     }
 
@@ -68,7 +68,9 @@ export default class ReportView extends React.Component<SignupViewProps, SignupV
                 </tr>
                 <tr>
                     <td>Image</td>
-                    <td>{this.state.image} <button>Choose image</button></td>
+                    <td><input type="file" onChange={e => this.setState({
+                        image: (e.target.files != null && e.target.files.length > 0) ? e.target.files[0] : undefined
+                    })} /></td>
                 </tr>
                 </tbody>
             </table>
@@ -125,11 +127,41 @@ export default class ReportView extends React.Component<SignupViewProps, SignupV
         })
     }
 
-    send() {
+    async send() {
         if (this.state.pothole.road.uuid == "") {
             this.setState({
                 error: "Please specify road"
             })
         }
+
+        let res = await this.props.api.addPothole(this.state.pothole)
+        if (res == undefined) {
+            this.setState({error: "Error storing location!"});
+            return;
+        }
+        if (this.state.image != undefined) {
+            let ok = await this.props.api.setPotholeImage(res.uuid, this.state.image)
+            if (!ok) {
+                this.setState({error: "Error storing image!"});
+            }
+        }
+
+        this.setState({
+            pothole: {
+                road: {
+                    name: "",
+                    uuid: (this.props.roads.length >= 1) ? this.props.roads[0].uuid : "",
+                },
+                uuid: "",
+                length: 0,
+                width: 0,
+                depth: 0,
+                coordinates: {
+                    latitude: -1,
+                    longitude: -1
+                }
+            },
+            image: undefined
+        });
     }
 }

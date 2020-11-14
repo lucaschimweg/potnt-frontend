@@ -1,4 +1,4 @@
-import RestfulApi from "./restfulApi";
+import RestfulApi, {ApiCallResult} from "./restfulApi";
 
 export interface HasUUID {
     uuid: string;
@@ -136,5 +136,21 @@ export class PotntApi extends RestfulApi implements IPotntApi {
         }
 
         return res.result
+    }
+
+    async setPotholeImage(uuid: string, file: File): Promise<boolean> {
+        return new Promise<boolean>(resolve => {
+            let xhr = new XMLHttpRequest();
+            xhr.open("post", this.apiRoot + `/pothole/${uuid}/image`, true);
+            xhr.onload = () => resolve(xhr.status == 200);
+
+            if (this.bearerToken != "") {
+                xhr.setRequestHeader("Authorization", `Bearer ${this.bearerToken}`)
+            }
+
+            let data = new FormData();
+            data.append('file', file)
+            xhr.send(data);
+        });
     }
 }
