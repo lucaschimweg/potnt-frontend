@@ -25,7 +25,7 @@ export type Coordinates = {
 
 export class PotntSignupApi extends RestfulApi {
     constructor() {
-        super("https://potnt.kuly.cloud/api");
+        super("/api");
     }
 
     async signUp(username: string, password: string, name: string): Promise<PotntApi | undefined> {
@@ -60,7 +60,7 @@ export interface IPotntApi {
 export class PotntApi extends RestfulApi implements IPotntApi {
 
     constructor(tenant: string) {
-        super(`https://potnt.kuly.cloud/api/${tenant}`);
+        super(`/api/${tenant}`);
     }
 
     async login(username: string, password: string): Promise<boolean> {
