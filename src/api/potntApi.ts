@@ -9,7 +9,7 @@ export type Pothole = {
     length: number,
     width: number,
     depth: number,
-    coordinate: Coordinate,
+    coordinates: Coordinates,
     road: Road,
 }
 
@@ -18,14 +18,14 @@ export type Road = {
     name: string
 }
 
-export type Coordinate = {
+export type Coordinates = {
     latitude: number,
     longitude: number
 }
 
 export class PotntSignupApi extends RestfulApi {
     constructor() {
-        super("/api");
+        super("https://potnt.kuly.cloud/api");
     }
 
     async signUp(username: string, password: string, name: string): Promise<PotntApi | undefined> {
@@ -40,7 +40,7 @@ export class PotntSignupApi extends RestfulApi {
         }
 
         let api = new PotntApi(name);
-        api.bearerToken = res.result;
+        api.bearerToken = res.result["bearerToken"];
         return api
     }
 }
@@ -59,7 +59,7 @@ export interface IPotntApi {
 export class PotntApi extends RestfulApi implements IPotntApi {
 
     constructor(tenant: string) {
-        super(`/api/${tenant}`);
+        super(`https://potnt.kuly.cloud/api/${tenant}`);
     }
 
     async login(username: string, password: string): Promise<boolean> {
@@ -72,7 +72,7 @@ export class PotntApi extends RestfulApi implements IPotntApi {
             return false
         }
 
-        this.bearerToken = res.result
+        this.bearerToken = res.result["bearerToken"]
         return true
     }
 
@@ -104,7 +104,7 @@ export class PotntApi extends RestfulApi implements IPotntApi {
     }
 
     async deletePothole(uuid: string): Promise<boolean> {
-        let res = await this.delete(`/potholes/${uuid}`);
+        let res = await this.delete(`/pothole/${uuid}`);
         return (res.status == 200 && res.resultParsable);
     }
 
@@ -128,7 +128,7 @@ export class PotntApi extends RestfulApi implements IPotntApi {
     }
 
     async addRoad(name: string): Promise<Road | undefined> {
-        let res = await this.post(`/road`, {
+        let res = await this.post(`/roads`, {
             name: name
         });
         if (!(res.status == 200 && res.resultParsable)) {

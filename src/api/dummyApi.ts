@@ -21,7 +21,7 @@ const potholes: { [road: string]: Pothole[] } = {
             depth: 5,
             width: 5,
             length: 5,
-            coordinate: {
+            coordinates: {
                 longitude: 123,
                 latitude: 123
             },
@@ -32,7 +32,7 @@ const potholes: { [road: string]: Pothole[] } = {
             depth: 1,
             width: 2,
             length: 3,
-            coordinate: {
+            coordinates: {
                 longitude: 124,
                 latitude: 124
             },
@@ -45,7 +45,7 @@ const potholes: { [road: string]: Pothole[] } = {
             depth: 5,
             width: 6,
             length: 5,
-            coordinate: {
+            coordinates: {
                 longitude: 53,
                 latitude: 32
             },
@@ -56,7 +56,7 @@ const potholes: { [road: string]: Pothole[] } = {
             depth: 5,
             width: 4,
             length: 2,
-            coordinate: {
+            coordinates: {
                 longitude: 125,
                 latitude: 1
             },

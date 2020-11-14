@@ -4,7 +4,9 @@ import "style/main.scss"
 import {Dialog, DialogProps} from "./dialog";
 
 type MainViewProps = {
-    api: IPotntApi
+    api: IPotntApi,
+    tenant: string,
+    logout: () => void,
 }
 
 type MainViewState = {
@@ -48,7 +50,7 @@ export default class MainView extends React.Component<MainViewProps, MainViewSta
         return <div id="mainView">
             <div id="mainContent"
                  className={this.state.activeDialog != undefined ? "contentUnfocused" : ""}>
-                <TopBarView tenantName={"Berlin"} />
+                <TopBarView logout={this.props.logout} tenantName={this.props.tenant} />
                 <DynamicPotholeList appControls={this.appControls} api={this.props.api} />
             </div>
             {this.state.activeDialog != undefined ? React.createElement(this.state.activeDialog, this.state.activeDialogProps): ""}
@@ -57,7 +59,8 @@ export default class MainView extends React.Component<MainViewProps, MainViewSta
 }
 
 type TopBarProps = {
-    tenantName: string
+    tenantName: string,
+    logout: () => void
 }
 
 class TopBarView extends React.Component<TopBarProps> {
@@ -65,7 +68,7 @@ class TopBarView extends React.Component<TopBarProps> {
     render() {
         return <div id="topBar">
             <p id="appName">Potn't</p>
-            <p id="user">{this.props.tenantName} (<a>logout</a>)</p>
+            <p id="user">{this.props.tenantName} (<a className="logoutButton" onClick={this.props.logout}>logout</a>)</p>
         </div>
     }
 }
@@ -75,7 +78,7 @@ function buildRoadTitle(r: Road): string {
 }
 
 function buildPotholeTitle(p: Pothole): string {
-    return `${p.depth}cm deep hole at ${p.coordinate.latitude}, ${p.coordinate.longitude}`
+    return `${p.depth}cm deep hole at ${p.coordinates.latitude}, ${p.coordinates.longitude}`
 }
 
 type DynamicPotholeListProps = {
@@ -232,11 +235,11 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
                     <tbody>
                         <tr>
                             <td>Latitude</td>
-                            <td>{this.props.pothole.coordinate.latitude}</td>
+                            <td>{this.props.pothole.coordinates.latitude}</td>
                         </tr>
                         <tr>
                             <td>Longitude</td>
-                            <td>{this.props.pothole.coordinate.longitude}</td>
+                            <td>{this.props.pothole.coordinates.longitude}</td>
                         </tr>
                         <tr>
                             <td>Length</td>

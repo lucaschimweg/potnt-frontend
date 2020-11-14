@@ -46,7 +46,7 @@ export default abstract class RestfulApi {
             };
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             if (this.bearerToken != "") {
-                xhr.setRequestHeader("Authorization", `Bearer: ${this.bearerToken}`)
+                xhr.setRequestHeader("Authorization", `Bearer ${this.bearerToken}`)
             }
             xhr.send(body);
         });
