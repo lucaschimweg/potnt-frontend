@@ -2,8 +2,9 @@ import React from "react";
 import {IPotntApi} from "../api/potntApi";
 
 type LoginViewProps = {
-    api: IPotntApi
-    onLoggedIn: () => void;
+    api: IPotntApi,
+    onLoggedIn: () => void,
+    tenant: string,
 }
 
 type LoginViewState = {
@@ -26,6 +27,7 @@ export default class LoginView extends React.Component<LoginViewProps, LoginView
 
     render() {
         return <div>
+            <h1>Login to {this.props.tenant}</h1>
             {(this.state.error !== "") ? this.state.error : ""}
             Username: <input type="text" value={this.state.username} onChange={(e) => this.setState({username: e.target.value})}/> <br />
             Password: <input type="password" value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/> <br />

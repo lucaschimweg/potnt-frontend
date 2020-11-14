@@ -43,7 +43,7 @@ function findSessionOrLogin(tenant: string) {
 function login(tenant: string) {
     var api = new PotntApi(tenant)
     ReactDOM.render(
-        <LoginView api={api} onLoggedIn={() => {
+        <LoginView tenant={tenant} api={api} onLoggedIn={() => {
             window.sessionStorage.setItem(`bearer/${tenant}`, api.bearerToken);
             startAppForTenant(api, tenant)
         }}/>,

@@ -3,7 +3,8 @@ import {Pothole, PotntApi, PotntSignupApi, Road} from "../api/potntApi";
 
 type SignupViewProps = {
     api: PotntApi,
-    roads: Road[]
+    roads: Road[],
+    tenant: string,
 }
 
 type SignupViewState = {
@@ -39,6 +40,7 @@ export default class ReportView extends React.Component<SignupViewProps, SignupV
 
     render() {
         return <div>
+            <h1>Report pothole in {this.props.tenant}</h1>
             {(this.state.error !== "") ? this.state.error : ""}
             <table>
                 <tbody>

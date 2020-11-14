@@ -24,7 +24,7 @@ async function showReportView(tenant: string) {
     }
 
     ReactDOM.render(
-        <ReportView api={api} roads={roads}/>,
+        <ReportView tenant={tenant} api={api} roads={roads}/>,
         document.getElementById("root")
     );
 }
