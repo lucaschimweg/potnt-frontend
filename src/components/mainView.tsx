@@ -106,23 +106,27 @@ class DynamicPotholeList extends React.Component<DynamicPotholeListProps, Dynami
         return <div id="potholeDynamicList" >
             <DynamicList<Road> allowAdd={true} onAdd={this.addRoad.bind(this)} id="roadList" loading={this.state.roadsLoading} elements={this.state.roads} selected={this.state.road} updateSelection={this.updateRoad.bind(this)} titleBuilder={buildRoadTitle} />
             <DynamicList<Pothole> allowAdd={false} id="potholeList" loading={this.state.potholesLoading} elements={this.state.potholes} selected={this.state.pothole} updateSelection={this.updatePothole.bind(this)} titleBuilder={buildPotholeTitle} />
-            <PotholeViewer api={this.props.api} pothole={this.state.pothole} onDelete={this.deleteCurrentPothole.bind(this)}/>
+            <PotholeViewer api={this.props.api} pothole={this.state.pothole} refresh={this.potholeRefresh.bind(this)}/>
         </div>
     }
 
-    deleteCurrentPothole() {
-        this.props.appControls.displayDialog(ConfirmDeleteDialog, {
-            onDelete: (dialog: ConfirmDeleteDialog) => {
-                if (this.state.pothole != undefined) {
-                    this.props.api.deletePothole(this.state.pothole.uuid).then(() => {
-                        this.updateRoad(this.state.road!)
+    potholeRefresh(del: boolean) {
+        if (del) {
+            this.props.appControls.displayDialog(ConfirmDeleteDialog, {
+                onDelete: (dialog: ConfirmDeleteDialog) => {
+                    if (this.state.pothole != undefined) {
+                        this.props.api.deletePothole(this.state.pothole.uuid).then(() => {
+                            this.updateRoad(this.state.road!)
+                            dialog.quit();
+                        });
+                    } else {
                         dialog.quit();
-                    });
-                } else {
-                    dialog.quit();
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            this.updateRoad(this.state.road!)
+        }
     }
 
     addRoad() {
@@ -222,11 +226,24 @@ class DynamicList<T extends HasUUID> extends React.Component<DynamicListProps<T>
 
 type PotholeViewerProps = {
     pothole: Pothole | undefined,
-    onDelete: () => void,
+    refresh: (deleted: boolean) => void,
     api: IPotntApi
 }
 
-class PotholeViewer extends React.Component<PotholeViewerProps> {
+type PotholeViewerState = {
+    editing: boolean,
+    pothole?: Pothole
+}
+
+class PotholeViewer extends React.Component<PotholeViewerProps, PotholeViewerState> {
+
+
+    constructor(props: Readonly<PotholeViewerProps> | PotholeViewerProps) {
+        super(props);
+        this.state = {
+            editing: false
+        }
+    }
 
     render() {
         return (this.props.pothole == undefined) ? "" :
@@ -244,15 +261,21 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
                         </tr>
                         <tr>
                             <td>Length</td>
-                            <td>{this.props.pothole.length}</td>
+                            <td>{ (!this.state.editing ? this.props.pothole.length :
+                                <input type="number" min={0} value={this.state.pothole?.length} onChange={e => this.updateLength(e.target.value)} /> )
+                            } cm</td>
                         </tr>
                         <tr>
                             <td>Width</td>
-                            <td>{this.props.pothole.width}</td>
+                            <td>{ (!this.state.editing ? this.props.pothole.width :
+                                <input type="number" min={0} value={this.state.pothole?.width} onChange={e => this.updateWidth(e.target.value)} /> )
+                            } cm</td>
                         </tr>
                         <tr>
                             <td>Depth</td>
-                            <td>{this.props.pothole.depth}</td>
+                            <td>{ (!this.state.editing ? this.props.pothole.depth :
+                                <input type="number" min={0} value={this.state.pothole?.depth} onChange={e => this.updateDepth(e.target.value)} /> )
+                            } cm</td>
                         </tr>
                         <tr>
                             <td>Image</td>
@@ -262,9 +285,49 @@ class PotholeViewer extends React.Component<PotholeViewerProps> {
                 </table>
 
                 <h3>Actions</h3>
-                <button>Edit</button>
-                <button onClick={this.props.onDelete}>Delete</button>
+
+                { this.state.editing ? <button onClick={this.save.bind(this)}>Save</button> : <button onClick={this.edit.bind(this)}>Edit</button> }
+                <button onClick={_ => this.props.refresh(true)}>Delete</button>
             </div>
+    }
+
+    edit() {
+        this.setState({
+            editing: true,
+            pothole: this.props.pothole
+        });
+    }
+
+    async save() {
+        this.setState({
+            editing: false
+        })
+        await this.props.api.updatePothole(this.state.pothole!)
+        this.props.refresh(false)
+    }
+
+    updateLength(length: string) {
+        let p = this.state.pothole;
+        p!.length = parseFloat(length);
+        this.setState({
+            pothole: p
+        });
+    }
+
+    updateWidth(width: string) {
+        let p = this.state.pothole;
+        p!.width = parseFloat(width);
+        this.setState({
+            pothole: p
+        });
+    }
+
+    updateDepth(depth: string) {
+        let p = this.state.pothole;
+        p!.depth = parseFloat(depth);
+        this.setState({
+            pothole: p
+        });
     }
 }
 
